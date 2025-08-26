@@ -1,48 +1,45 @@
-apply plugin: 'java'
-apply plugin: 'checkstyle'
-
-sourceCompatibility = JavaVersion.VERSION_11
+plugins {
+    id 'java'
+    id 'checkstyle'
+}
 
 group = 'com.github.sevntu-checkstyle'
 version = '0.0.1-SNAPSHOT'
 
-checkstyle {
-
-  project.ext.checkstyleVersion = '10.17.0'
-  project.ext.sevntuChecksVersion = '1.44.1'
-
-  repositories {
-    mavenLocal()
-    mavenCentral()
-    // we keep artifacts in maven central too,
-    // but this is just example of usage from our old maven repo on github
-    maven {
-      url "https://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
     }
-  }
-
-  ignoreFailures = true
-  configFile = file("${project.rootDir}/checkstyle.xml")
-
-  //sourceSets = [sourceSets.main]
-  //showViolations = true
-  //reportsDir = file("$project.buildDir/checkstyleReports")
-  //configProperties = ['baseDir': "$project.projectDir"]
-
-  //https://discuss.gradle.org/t/some-checkstyle-rules-dont-work-in-gradle/16102/4
-  checkstyleMain {
-    source = sourceSets.main.allSource
-  }
-
-  configurations {
-    checkstyle
-  }
-
-  dependencies{
-    assert project.hasProperty("checkstyleVersion")
-
-    checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
-    checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
-  }
 }
 
+checkstyle {
+    ignoreFailures = true
+    configFile = file("${project.rootDir}/checkstyle.xml")
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    // legacy repo, example usage
+    maven {
+        url "https://sevntu-checkstyle.github.com/sevntu.checkstyle/maven2"
+    }
+}
+
+configurations {
+    checkstyle
+}
+
+ext {
+    checkstyleVersion = '11.0.0'
+    sevntuChecksVersion = '1.44.1'
+}
+
+dependencies {
+    checkstyle "com.puppycrawl.tools:checkstyle:${checkstyleVersion}"
+    checkstyle "com.github.sevntu-checkstyle:sevntu-checks:${sevntuChecksVersion}"
+}
+
+tasks.named("checkstyleMain").configure {
+    source = sourceSets.main.allSource
+}
